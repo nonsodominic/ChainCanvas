@@ -45,7 +45,6 @@
   (and 
     (not (is-eq recipient tx-sender))  ;; Prevent self-transfer
     (not (is-eq recipient CONTRACT-OWNER))  ;; Prevent transfer to contract owner
-    (> (len (principal-to-string recipient)) u0)  ;; Ensure recipient is a valid principal
     true
   )
 )
