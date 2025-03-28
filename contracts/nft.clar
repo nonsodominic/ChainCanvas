@@ -9,6 +9,7 @@
 (define-constant ERR-TOKEN-NOT-FOUND (err u3))
 (define-constant ERR-ALREADY-BURNED (err u4))
 (define-constant ERR-INVALID-ROYALTY (err u5))
+(define-constant ERR-INVALID-ROYALTY-RECEIVER (err u6))
 
 ;; Storage for token ownership
 (define-map token-ownership 
@@ -66,6 +67,15 @@
   )
 )
 
+;; Validate royalty receiver
+(define-private (is-valid-royalty-receiver (receiver principal))
+  (and
+    (not (is-eq receiver tx-sender))  ;; Prevent self-royalty
+    (not (is-eq receiver CONTRACT-OWNER))  ;; Prevent royalty to contract owner
+    true
+  )
+)
+
 ;; Mint a new NFT with Royalty
 (define-public (mint-with-royalty 
   (recipient principal) 
@@ -79,6 +89,9 @@
     
     ;; Validate recipient
     (asserts! (is-valid-recipient recipient) ERR-INVALID-RECIPIENT)
+    
+    ;; Validate royalty receiver
+    (asserts! (is-valid-royalty-receiver royalty-receiver) ERR-INVALID-ROYALTY-RECEIVER)
     
     ;; Validate token URI is not empty
     (asserts! (> (len token-uri) u0) ERR-INVALID-RECIPIENT)
